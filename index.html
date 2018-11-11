@@ -37,21 +37,48 @@
 
 		<div class="app" id="app"></div>
 		<div class="desc" id="desc">
-			Nothing here currently.
+			<b>The Rubiks Cube</b> <br/>
+			This is a collaboration between a biologist, physicist, and a computer engineer. Together we created a 3D representation of the ubiquitous Rubiks Cube.
+			<br/>
+			<br/>
+			<b>Controls</b> <br/>
+			<b>A</b> - Rotate the Front-Left Face Clockwise<br/>
+			<b>W</b> - Rotate the Top Face Clockwise <br/>
+			<b>D</b> - Rotate the Front-Right Face Clockwise <br/>
+			<b>While Holding Shift</b> - Do the opposite <br/>
+			<b>UpArrow</b> - Flip the Rubiks Cube <br/>
+			<b>LeftArrow - RightArrow</b> - Rotate the Rubiks Cube Left or Right <br/>
+			<b>R</b> - Solve the Rubiks Cube (Resets the Rubiks Cube) <br/>
+			<b>G</b> - Scramble the Rubiks Cube (Hold for a disco cube) <br/> 
+			<br/>
+			<b>Power User Controls</b><br/>
+			<b>Tab</b> - Enable Power Users (includes previous controls) and show the back faces <br/>
+			<b>Q</b> - Rotate the Back-Left Face Clockwise <br/>
+			<b>E</b> - Rotate the Back-Right Face Clockwise <br/>
+			<b>S</b> - Rotate the Bottom Face Clockwise <br/>
+			<br/>
+			<br/>
+			<b>Notes</b> <br/>
+			<ul>
+				<li>Each of the 6 faces is composed of 9 subfaces for a total of 54 subfaces to keep track of (Stored in an array of integers). </li>
+				<li>Each face has one face rotation written. (Reverse rotations are implemented via forward rotation three times). </li>
+				<li>Each face doesn't move, their subfaces are modified accordingly. </li>
+				<li>Scramble chooses a random face and rotates clockwise 1 to 3 times (It uses the defined face rotations). </li>
+				<li>The Rubiks Cube is drawn by drawing two triangles (which make up one subface) 54 times.</li>
+				<li>The WorldMatrix, which the "one" subface uses to draw all the subfaces, is constructed by translating as if the subface was on the front face and then is rotated to the appropriate face. </li>
+			</ul>
 		</div>
 		<button onclick="hflog.clear()">Clear Log</button>
 		<div class="log" id="log"></div>
 
 		<script src="library.js"></script>
 
-		<center>
-			<footer>
+		<footer>
 			<hr class="bluehr" />
 			<script>
 				document.write("<a style=\"color:blue\" href=\"https://github.com/cjemerson/\"> Navigate back to Github </a>");
 			</script>
 		</footer>
-		</center>
 		
 	</article>
 

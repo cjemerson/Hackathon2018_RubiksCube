@@ -10,21 +10,15 @@ class HackathonApp {
     dt = 0;
     uiUpdateTime = 0;
 
-    // cameraPosition: Vector3 = new Vector3 (0, -30, 0);
     controls: MyControls;
     skipBehind: boolean = true;
 
     shaderProgram: WebGLProgram | null = null;
 
     aVertexLocation : number = 0;
-    aTexCoordLocation : number = 0;
     aColorLocation : number = 0;
-    aNormalLocation : number = 0;
     uModelViewMatrixLocation : WebGLUniformLocation | null = null;
     uProjectionMatrixLocation : WebGLUniformLocation | null = null;
-    uTextureMatrix : WebGLUniformLocation | null = null;
-    uTextureMapLocation : WebGLUniformLocation | null = null;
-    uRenderMode : WebGLUniformLocation | null = null;
     uColor : WebGLUniformLocation | null = null;
     uWorldMatrixLocation : WebGLUniformLocation | null = null;
 
@@ -60,39 +54,17 @@ class HackathonApp {
 
         const vsSource = `#version 100
         #extension GL_OES_standard_derivatives: enable
-        // ABOVE IS NEW FOR LECTURE 12
 
         attribute vec4 aVertexPosition;
-        attribute vec4 aTexCoord;
         attribute vec4 aColor;
-
-        // NEW FOR LECTURE 12
-        attribute vec3 aNormal;
-        // ABOVE IS NEW FOR LECTURE 12
-
-        varying vec2 vTexCoord;
-        varying vec4 vColor;
-
-        // NEW FOR LECTURE 12
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-        // ABOVE IS NEW FOR LECTURE 12
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
-        uniform mat4 uTextureMatrix;
         uniform mat4 uWorldMatrix;
 
         void main() {
             vec4 worldPosition = uWorldMatrix * aVertexPosition;
-            vNormal = mat3(uModelViewMatrix) * aNormal;
-            vPosition = (uModelViewMatrix * aVertexPosition).xyz;
-            // ABOVE IS NEW FOR LECTURE 12
 
-            // multiply our 2 component vector with a 4x4 matrix and return resulting x, y
-            vec2 temp = (uTextureMatrix * aTexCoord).xy;
-            vTexCoord = vec2(aTexCoord.x, aTexCoord.y);
-            vColor = aColor;            
             gl_Position = uProjectionMatrix * uModelViewMatrix * worldPosition;
             gl_PointSize = 3.0;
         }
@@ -101,21 +73,9 @@ class HackathonApp {
 
         const fsSource = `#version 100
         #extension GL_OES_standard_derivatives: enable
-        // ABOVE IS NEW FOR LECTURE 12
 
         precision mediump float;
-        uniform sampler2D uTextureMap;
-        uniform int uRenderMode;
         uniform vec3 uColor;
-
-        varying vec2 vTexCoord;
-        varying vec4 vColor;
-
-        // NEW FOR LECTURE 12
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-        // ABOVE IS NEW FOR LECTURE 12
-
         void main() {
             gl_FragColor = vec4(uColor, 1.0);
         }
@@ -137,14 +97,9 @@ class HackathonApp {
             this.shaderProgram = shaderProgram;
 
             this.aVertexLocation = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
-            this.aTexCoordLocation = gl.getAttribLocation(shaderProgram, 'aTexCoord');
             this.aColorLocation = gl.getAttribLocation(shaderProgram, 'aColor');
-            this.aNormalLocation = gl.getAttribLocation(shaderProgram, 'aNormalLocation');
             this.uModelViewMatrixLocation = gl.getUniformLocation(shaderProgram, 'uModelViewMatrix');
             this.uProjectionMatrixLocation = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix');
-            this.uTextureMatrix = gl.getUniformLocation(shaderProgram, 'uTextureMatrix');
-            this.uTextureMapLocation = gl.getUniformLocation(shaderProgram, "uTextureMap");
-            this.uRenderMode = gl.getUniformLocation(shaderProgram, "uRenderMode");
             this.uColor = gl.getUniformLocation(shaderProgram, "uColor");
             this.uWorldMatrixLocation = gl.getUniformLocation(shaderProgram, "uWorldMatrix");
         }
@@ -285,7 +240,7 @@ class HackathonApp {
             }
         }
     }
-    rotateRubriksLeft(): void {
+    rotateRubriksRight(): void {
         
         let temp = new Array<number>(54);
 
@@ -323,219 +278,279 @@ class HackathonApp {
         }
     }
 
-    private update(): void {
-        let zoom_speed = 6.0;
+    rotateFrontFaceCW(): void {
+        let temp = new Array<number>(54);
 
+        this.rotateCW(0);
+
+        temp[getIndex(1,2)] = this.subfaces[getIndex(4,0)];
+        temp[getIndex(1,5)] = this.subfaces[getIndex(4,1)];
+        temp[getIndex(1,8)] = this.subfaces[getIndex(4,2)];
+
+        temp[getIndex(2,0)] = this.subfaces[getIndex(5,6)];
+        temp[getIndex(2,3)] = this.subfaces[getIndex(5,7)];
+        temp[getIndex(2,6)] = this.subfaces[getIndex(5,8)];
+
+        temp[getIndex(4,0)] = this.subfaces[getIndex(2,6)];
+        temp[getIndex(4,1)] = this.subfaces[getIndex(2,3)];
+        temp[getIndex(4,2)] = this.subfaces[getIndex(2,0)];
+
+        temp[getIndex(5,6)] = this.subfaces[getIndex(1,8)];
+        temp[getIndex(5,7)] = this.subfaces[getIndex(1,5)];
+        temp[getIndex(5,8)] = this.subfaces[getIndex(1,2)];
+
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    rotateLeftFaceCW(): void {
+        let temp = new Array<number>(54);
+
+        this.rotateCW(1);
+
+        temp[getIndex(4,0)] = this.subfaces[getIndex(0,0)];
+        temp[getIndex(4,3)] = this.subfaces[getIndex(0,3)];
+        temp[getIndex(4,6)] = this.subfaces[getIndex(0,6)];
+
+        temp[getIndex(5,0)] = this.subfaces[getIndex(3,8)];
+        temp[getIndex(5,3)] = this.subfaces[getIndex(3,5)];
+        temp[getIndex(5,6)] = this.subfaces[getIndex(3,2)];
+
+        temp[getIndex(0,0)] = this.subfaces[getIndex(5,0)];
+        temp[getIndex(0,3)] = this.subfaces[getIndex(5,3)];
+        temp[getIndex(0,6)] = this.subfaces[getIndex(5,6)];
+
+        temp[getIndex(3,2)] = this.subfaces[getIndex(4,6)];
+        temp[getIndex(3,5)] = this.subfaces[getIndex(4,3)];
+        temp[getIndex(3,8)] = this.subfaces[getIndex(4,0)];
+        // this.cameraPosition.z += 10.0*zoom_speed*this.dt;
+        
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    rotateRightFaceCW(): void {
+        let temp = new Array<number>(54);
+
+        this.rotateCW(2);
+
+        temp[getIndex(0,2)] = this.subfaces[getIndex(4,2)];
+        temp[getIndex(0,5)] = this.subfaces[getIndex(4,5)];
+        temp[getIndex(0,8)] = this.subfaces[getIndex(4,8)];
+
+        temp[getIndex(3,0)] = this.subfaces[getIndex(5,8)];
+        temp[getIndex(3,3)] = this.subfaces[getIndex(5,5)];
+        temp[getIndex(3,6)] = this.subfaces[getIndex(5,2)];
+
+        temp[getIndex(4,2)] = this.subfaces[getIndex(3,6)];
+        temp[getIndex(4,5)] = this.subfaces[getIndex(3,3)];
+        temp[getIndex(4,8)] = this.subfaces[getIndex(3,0)];
+
+        temp[getIndex(5,2)] = this.subfaces[getIndex(0,2)];
+        temp[getIndex(5,5)] = this.subfaces[getIndex(0,5)];
+        temp[getIndex(5,8)] = this.subfaces[getIndex(0,8)];
+
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    rotateBackFaceCW(): void {
+        let temp = new Array<number>(54);
+
+        this.rotateCW(3);
+
+        temp[getIndex(5,0)] = this.subfaces[getIndex(2,2)];
+        temp[getIndex(5,1)] = this.subfaces[getIndex(2,5)];
+        temp[getIndex(5,2)] = this.subfaces[getIndex(2,8)];
+
+        temp[getIndex(2,2)] = this.subfaces[getIndex(4,8)];
+        temp[getIndex(2,5)] = this.subfaces[getIndex(4,7)];
+        temp[getIndex(2,8)] = this.subfaces[getIndex(4,6)];
+
+        temp[getIndex(4,6)] = this.subfaces[getIndex(1,0)];
+        temp[getIndex(4,7)] = this.subfaces[getIndex(1,3)];
+        temp[getIndex(4,8)] = this.subfaces[getIndex(1,6)];
+
+        temp[getIndex(1,0)] = this.subfaces[getIndex(5,2)];
+        temp[getIndex(1,3)] = this.subfaces[getIndex(5,1)];
+        temp[getIndex(1,6)] = this.subfaces[getIndex(5,0)];
+
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    rotateTopFaceCW(): void {
+        let temp = new Array<number>(54);
+
+        this.rotateCW(5);
+
+        temp[getIndex(3,0)] = this.subfaces[getIndex(1,0)];
+        temp[getIndex(3,1)] = this.subfaces[getIndex(1,1)];
+        temp[getIndex(3,2)] = this.subfaces[getIndex(1,2)];
+
+        temp[getIndex(2,0)] = this.subfaces[getIndex(3,0)];
+        temp[getIndex(2,1)] = this.subfaces[getIndex(3,1)];
+        temp[getIndex(2,2)] = this.subfaces[getIndex(3,2)];
+
+        temp[getIndex(1,0)] = this.subfaces[getIndex(0,0)];
+        temp[getIndex(1,1)] = this.subfaces[getIndex(0,1)];
+        temp[getIndex(1,2)] = this.subfaces[getIndex(0,2)];
+
+        temp[getIndex(0,0)] = this.subfaces[getIndex(2,0)];
+        temp[getIndex(0,1)] = this.subfaces[getIndex(2,1)];
+        temp[getIndex(0,2)] = this.subfaces[getIndex(2,2)];
+
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    rotateBottomFaceCW(): void {
+        let temp = new Array<number>(54);
+
+        this.rotateCW(4);
+
+        temp[getIndex(0,6)] = this.subfaces[getIndex(1,6)];
+        temp[getIndex(0,7)] = this.subfaces[getIndex(1,7)];
+        temp[getIndex(0,8)] = this.subfaces[getIndex(1,8)];
+
+        temp[getIndex(2,6)] = this.subfaces[getIndex(0,6)];
+        temp[getIndex(2,7)] = this.subfaces[getIndex(0,7)];
+        temp[getIndex(2,8)] = this.subfaces[getIndex(0,8)];
+
+        temp[getIndex(1,6)] = this.subfaces[getIndex(3,6)];
+        temp[getIndex(1,7)] = this.subfaces[getIndex(3,7)];
+        temp[getIndex(1,8)] = this.subfaces[getIndex(3,8)];
+
+        temp[getIndex(3,6)] = this.subfaces[getIndex(2,6)];
+        temp[getIndex(3,7)] = this.subfaces[getIndex(2,7)];
+        temp[getIndex(3,8)] = this.subfaces[getIndex(2,8)];
+
+        for (let i = 0; i < 54; ++i) {
+            if (temp[i] != undefined) {
+                this.subfaces[i] = temp[i];
+            }
+        }
+    }
+
+    scrambleRubiksCube(): void {
+        let randFace = Math.floor(6 * Math.random());
+        let randRotations = 1 + Math.floor(3 * Math.random());
+
+        for(let i = 0; i < randRotations; ++i) {
+            switch (randFace) {
+                default:
+                case 0:
+                    this.rotateFrontFaceCW();
+                    break;
+                case 1:
+                    this.rotateBackFaceCW();
+                    break;
+                case 2:
+                    this.rotateLeftFaceCW();
+                    break;
+                case 3:
+                    this.rotateRightFaceCW();
+                    break;
+                case 4:
+                    this.rotateBottomFaceCW();
+                    break;
+                case 5:
+                    this.rotateTopFaceCW();
+                    break;
+            }
+        }
+        
+    }
+
+    private update(): void {
         // The first time through will dynamically build key listener list
         // The list is physical keyboard keys, see KeyboardEvent.code documentation
         let keys = this.controls;
-    
+
+        let doOpposite = false;
         
         /***** CAMERA / WORLD CONTROLS *****/
+        if (keys.isKeyDown(["ShiftLeft", "ShiftRight"])) {
+            doOpposite = true;
+        }
         if (keys.isKeyClick(["Tab"])) {
             this.skipBehind = !this.skipBehind;
         }
-        if (keys.isKeyDown(["ShiftLeft", "ShiftRight"])) {
-            zoom_speed *= 5.0;
-        }
-        if (keys.isKeyClick(["ArrowUp"])) {
+        if (keys.isKeyClick(["ArrowUp", "ArrowDown"])) {
             this.rotateRubriksUp();
             this.rotateRubriksUp();
-            this.rotateRubriksLeft();
-            this.rotateRubriksLeft();
-            this.rotateRubriksLeft();
-            // this.cameraPosition.y += zoom_speed*this.dt;
+            this.rotateRubriksRight();
+            this.rotateRubriksRight();
+            this.rotateRubriksRight();
         }
-        // if (keys.isKeyClick(["ArrowDown"])) {
-        //     this.rotateRubriksUp();
-        //     this.rotateRubriksUp();
-        //     this.rotateRubriksUp();
-        //     // this.cameraPosition.y -= zoom_speed*this.dt;
-        // }
 
         if (keys.isKeyClick(["ArrowRight"])) {
-            this.rotateRubriksLeft();
-            this.rotateRubriksLeft();
-            this.rotateRubriksLeft();
-            // this.cameraPosition.x -= 10.0*zoom_speed*this.dt;
+            this.rotateRubriksRight();
         }
         if (keys.isKeyClick(["ArrowLeft"])) {
-            this.rotateRubriksLeft();
-            // this.cameraPosition.x += 10.0*zoom_speed*this.dt;
+            this.rotateRubriksRight();
+            this.rotateRubriksRight();
+            this.rotateRubriksRight();
         }
-
         if (keys.isKeyClick(["KeyR"])) {
             this.resetRubriksCube();
-            // this.cameraPosition.x = 0.0;
-            // this.cameraPosition.y = -30.0;
-            // this.cameraPosition.y = 0.0;
         }
 
 
         /***** OTHER CONTROLS *****/
         if (keys.isKeyClick(["KeyA"])) {
-            // hflog.log('left');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(1);
-
-            temp[getIndex(4,0)] = this.subfaces[getIndex(0,0)];
-            temp[getIndex(4,3)] = this.subfaces[getIndex(0,3)];
-            temp[getIndex(4,6)] = this.subfaces[getIndex(0,6)];
-
-            temp[getIndex(5,0)] = this.subfaces[getIndex(3,8)];
-            temp[getIndex(5,3)] = this.subfaces[getIndex(3,5)];
-            temp[getIndex(5,6)] = this.subfaces[getIndex(3,2)];
-
-            temp[getIndex(0,0)] = this.subfaces[getIndex(5,0)];
-            temp[getIndex(0,3)] = this.subfaces[getIndex(5,3)];
-            temp[getIndex(0,6)] = this.subfaces[getIndex(5,6)];
-
-            temp[getIndex(3,2)] = this.subfaces[getIndex(4,6)];
-            temp[getIndex(3,5)] = this.subfaces[getIndex(4,3)];
-            temp[getIndex(3,8)] = this.subfaces[getIndex(4,0)];
-            // this.cameraPosition.z += 10.0*zoom_speed*this.dt;
-            
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+            this.rotateLeftFaceCW();
+            if (doOpposite) {
+                this.rotateLeftFaceCW();
+                this.rotateLeftFaceCW();
             }
         } else if (keys.isKeyClick(["KeyD"])) {
-            // hflog.log('front');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(0);
-
-            temp[getIndex(1,2)] = this.subfaces[getIndex(4,0)];
-            temp[getIndex(1,5)] = this.subfaces[getIndex(4,1)];
-            temp[getIndex(1,8)] = this.subfaces[getIndex(4,2)];
-
-            temp[getIndex(2,0)] = this.subfaces[getIndex(5,6)];
-            temp[getIndex(2,3)] = this.subfaces[getIndex(5,7)];
-            temp[getIndex(2,6)] = this.subfaces[getIndex(5,8)];
-
-            temp[getIndex(4,0)] = this.subfaces[getIndex(2,6)];
-            temp[getIndex(4,1)] = this.subfaces[getIndex(2,3)];
-            temp[getIndex(4,2)] = this.subfaces[getIndex(2,0)];
-
-            temp[getIndex(5,6)] = this.subfaces[getIndex(1,8)];
-            temp[getIndex(5,7)] = this.subfaces[getIndex(1,5)];
-            temp[getIndex(5,8)] = this.subfaces[getIndex(1,2)];
-
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+            this.rotateFrontFaceCW();
+            if (doOpposite) {
+                this.rotateFrontFaceCW();
+                this.rotateFrontFaceCW();
             }
-        } else if (keys.isKeyClick(["KeyQ"])) {
-            // hflog.log('back');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(3);
-
-            temp[getIndex(5,0)] = this.subfaces[getIndex(2,2)];
-            temp[getIndex(5,1)] = this.subfaces[getIndex(2,5)];
-            temp[getIndex(5,2)] = this.subfaces[getIndex(2,8)];
-
-            temp[getIndex(2,2)] = this.subfaces[getIndex(4,8)];
-            temp[getIndex(2,5)] = this.subfaces[getIndex(4,7)];
-            temp[getIndex(2,8)] = this.subfaces[getIndex(4,6)];
-
-            temp[getIndex(4,6)] = this.subfaces[getIndex(1,0)];
-            temp[getIndex(4,7)] = this.subfaces[getIndex(1,3)];
-            temp[getIndex(4,8)] = this.subfaces[getIndex(1,6)];
-
-            temp[getIndex(1,0)] = this.subfaces[getIndex(5,2)];
-            temp[getIndex(1,3)] = this.subfaces[getIndex(5,1)];
-            temp[getIndex(1,6)] = this.subfaces[getIndex(5,0)];
-
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+        } else if (!this.skipBehind && keys.isKeyClick(["KeyQ"])) {
+            this.rotateBackFaceCW();
+            if (doOpposite) {
+                this.rotateBackFaceCW();
+                this.rotateBackFaceCW();
             }
-        } else if (keys.isKeyClick(["KeyE"])) {
-            // hflog.log('right');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(2);
-
-            temp[getIndex(0,2)] = this.subfaces[getIndex(4,2)];
-            temp[getIndex(0,5)] = this.subfaces[getIndex(4,5)];
-            temp[getIndex(0,8)] = this.subfaces[getIndex(4,8)];
-
-            temp[getIndex(3,0)] = this.subfaces[getIndex(5,8)];
-            temp[getIndex(3,3)] = this.subfaces[getIndex(5,5)];
-            temp[getIndex(3,6)] = this.subfaces[getIndex(5,2)];
-
-            temp[getIndex(4,2)] = this.subfaces[getIndex(3,6)];
-            temp[getIndex(4,5)] = this.subfaces[getIndex(3,3)];
-            temp[getIndex(4,8)] = this.subfaces[getIndex(3,0)];
-
-            temp[getIndex(5,2)] = this.subfaces[getIndex(0,2)];
-            temp[getIndex(5,5)] = this.subfaces[getIndex(0,5)];
-            temp[getIndex(5,8)] = this.subfaces[getIndex(0,8)];
-
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+        } else if (!this.skipBehind && keys.isKeyClick(["KeyE"])) {
+            this.rotateRightFaceCW();
+            if (doOpposite) {
+                this.rotateRightFaceCW();
+                this.rotateRightFaceCW();
             }
         } else if (keys.isKeyClick(["KeyW"])) {
-            // hflog.log('top');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(5);
-
-            temp[getIndex(3,0)] = this.subfaces[getIndex(1,0)];
-            temp[getIndex(3,1)] = this.subfaces[getIndex(1,1)];
-            temp[getIndex(3,2)] = this.subfaces[getIndex(1,2)];
-
-            temp[getIndex(2,0)] = this.subfaces[getIndex(3,0)];
-            temp[getIndex(2,1)] = this.subfaces[getIndex(3,1)];
-            temp[getIndex(2,2)] = this.subfaces[getIndex(3,2)];
-
-            temp[getIndex(1,0)] = this.subfaces[getIndex(0,0)];
-            temp[getIndex(1,1)] = this.subfaces[getIndex(0,1)];
-            temp[getIndex(1,2)] = this.subfaces[getIndex(0,2)];
-
-            temp[getIndex(0,0)] = this.subfaces[getIndex(2,0)];
-            temp[getIndex(0,1)] = this.subfaces[getIndex(2,1)];
-            temp[getIndex(0,2)] = this.subfaces[getIndex(2,2)];
-
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+            this.rotateTopFaceCW();
+            if (doOpposite) {
+                this.rotateTopFaceCW();
+                this.rotateTopFaceCW();
             }
-        } else if (keys.isKeyClick(["KeyS"])) {
-            // hflog.log('bottom');
-            let temp = new Array<number>(54);
-
-            this.rotateCW(4);
-
-            temp[getIndex(0,6)] = this.subfaces[getIndex(1,6)];
-            temp[getIndex(0,7)] = this.subfaces[getIndex(1,7)];
-            temp[getIndex(0,8)] = this.subfaces[getIndex(1,8)];
-
-            temp[getIndex(2,6)] = this.subfaces[getIndex(0,6)];
-            temp[getIndex(2,7)] = this.subfaces[getIndex(0,7)];
-            temp[getIndex(2,8)] = this.subfaces[getIndex(0,8)];
-
-            temp[getIndex(1,6)] = this.subfaces[getIndex(3,6)];
-            temp[getIndex(1,7)] = this.subfaces[getIndex(3,7)];
-            temp[getIndex(1,8)] = this.subfaces[getIndex(3,8)];
-
-            temp[getIndex(3,6)] = this.subfaces[getIndex(2,6)];
-            temp[getIndex(3,7)] = this.subfaces[getIndex(2,7)];
-            temp[getIndex(3,8)] = this.subfaces[getIndex(2,8)];
-
-            for (let i = 0; i < 54; ++i) {
-                if (temp[i] != undefined) {
-                    this.subfaces[i] = temp[i];
-                }
+        } else if (!this.skipBehind && keys.isKeyClick(["KeyS"])) {
+            this.rotateBottomFaceCW();
+            if (doOpposite) {
+                this.rotateBottomFaceCW();
+                this.rotateBottomFaceCW();
             }
+        } else if (keys.isKeyDown(["KeyG"])) {
+            this.scrambleRubiksCube();
         }
     }
 
@@ -603,8 +618,6 @@ class HackathonApp {
             gl.uniformMatrix4fv(this.uProjectionMatrixLocation, false, p.toColMajorArray());
         if (this.uModelViewMatrixLocation)
             gl.uniformMatrix4fv(this.uModelViewMatrixLocation, false, c.toColMajorArray());
-        if (this.uTextureMapLocation)
-            gl.uniform1i(this.uTextureMapLocation, 0);
 
         let color = new Vector3(0.0, 1.0, 0.0);
         if (this.uColor)
@@ -614,7 +627,7 @@ class HackathonApp {
         gl.useProgram(this.shaderProgram);
         for (let i = 0; i < 54; ++i) {
             if (i == 18 && this.skipBehind){
-                i = 54 - 9;
+                i = 54 - 9; // Skip 18 - 44
             }
 
             w = this.getWorldMatrix(i);
@@ -643,7 +656,7 @@ class HackathonApp {
 
             }
             gl.uniform3fv(this.uColor, color.toFloat32Array());
-            this.surfaces.draw(gl, this.aVertexLocation, this.aColorLocation, this.aTexCoordLocation, this.aNormalLocation);
+            this.surfaces.draw(gl, this.aVertexLocation, this.aColorLocation);
         }
     }
 }
