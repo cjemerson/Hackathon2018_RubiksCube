@@ -68,31 +68,6 @@ class MyShape {
         this.currentNormal.reset(xyz.x, xyz.y, xyz.z);
     }
 
-    // set current material library
-    mtllib(name: string) {
-
-    }
-
-    // set current material
-    usemtl(name: string) {
-
-    }
-
-    // create smoothing normals
-    smooth() {
-
-    }
-
-    // create a box
-    box(P0: Vector3, P1: Vector3) {
-
-    }
-
-    // create a sphere
-    sphere(size: number, slices: number = 16, stacks: number = 8) {
-
-    }
-
     // add a new index to the surface
     // negative numbers backward index into the shape vertices
     addIndex(which: number) {
