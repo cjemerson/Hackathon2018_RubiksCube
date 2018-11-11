@@ -1309,6 +1309,11 @@ class Hatchetfish {
     }
 }
 var hflog = new Hatchetfish();
+// Charles Emerson
+// Started: 10 Nov 2018
+// Updated: 11 Nov 2018
+// 
+// For Hackathon 2018
 function getIndex(i, j) {
     return 9 * i + j;
 }
@@ -1880,6 +1885,9 @@ class HackathonApp {
         }
     }
 }
+// J. B. Metzgar
+// Started: Fall 2018
+// For CS480 Computer Graphics Fundamentals
 class MyColor {
     constructor(r = 0, g = 0, b = 0, a = 255) {
         this.r = r;
@@ -1889,6 +1897,10 @@ class MyColor {
     }
 }
 ;
+// Charles Emerson
+// Started: Fall 2018
+// Updated: 11 Nov 2018
+// Basic Keyboard Input Listener
 // Note abs(KEY_X) == abs(KEY_X_READ)
 var KeyStatus;
 (function (KeyStatus) {
@@ -2013,6 +2025,9 @@ class MyControls {
         return keyup;
     }
 }
+// J. B. Metzgar
+// Started: Fall 2018
+// For CS480 Computer Graphics Fundamentals
 /// <reference path="MyColor.ts" />
 class MyShapeOutline {
     constructor(type = 0, first = 0, count = 0) {
