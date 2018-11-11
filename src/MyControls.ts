@@ -1,3 +1,8 @@
+// Charles Emerson
+// Started: Fall 2018
+// Updated: 11 Nov 2018
+// Basic Keyboard Input Listener
+
 // Note abs(KEY_X) == abs(KEY_X_READ)
 enum KeyStatus {
     NONE = 0,

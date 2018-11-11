@@ -1,3 +1,7 @@
+// J. B. Metzgar
+// Started: Fall 2018
+// For CS480 Computer Graphics Fundamentals
+
 /// <reference path="MyColor.ts" />
 
 class MyShapeOutline {

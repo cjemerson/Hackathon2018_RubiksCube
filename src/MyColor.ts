@@ -1,3 +1,7 @@
+// J. B. Metzgar
+// Started: Fall 2018
+// For CS480 Computer Graphics Fundamentals
+
 class MyColor {
     constructor(
         public r: number = 0,

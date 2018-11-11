@@ -1,3 +1,8 @@
+// Charles Emerson
+// Started: 10 Nov 2018
+// Updated: 11 Nov 2018
+// 
+// For Hackathon 2018
 
 function getIndex(i : number, j : number) : number {
     return 9*i + j;
